@@ -1,0 +1,16 @@
+{
+  "schema": "ran-wordpress-plugin-release",
+  "schema_version": 1,
+  "repository": "RocketsAreNostalgic/booster-fixture-plugin",
+  "tag": "v0.1.0",
+  "commit": "6d50a2219274279a58dafadedd9fbeec82ca273b",
+  "zip": "booster-fixture-plugin-0.1.0.zip",
+  "plugin_root": "booster-fixture-plugin",
+  "main_file": "booster-fixture-plugin.php",
+  "version": "0.1.0",
+  "requires_php": "8.2",
+  "requires_wordpress": "6.5",
+  "tested_wordpress": "6.8",
+  "zip_size": 1148,
+  "zip_sha256": "b143248e894eda10efea290f0edd30b1e46dd9512e9a805dde13426e1d27a4ec"
+}
