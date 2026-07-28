@@ -1,0 +1,1 @@
+booster-fixture-plugin 0.1.0
