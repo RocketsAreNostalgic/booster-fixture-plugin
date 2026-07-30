@@ -3,7 +3,7 @@
  * Plugin Name: Booster Fixture Plugin
  * Description: Disposable public release fixture for RAN Booster integration tests.
  * x-release-please-start-version
- * Version: 0.5.0
+ * Version: 0.6.0
  * x-release-please-end
  * Requires at least: 6.5
  * Requires PHP: 8.2
