@@ -30,3 +30,5 @@ The `v0.4.0` fixture exercises packaging in a separate workflow triggered
 after the Release Please workflow completes.
 
 The `v0.5.0` fixture confirms the selected direct handoff profile.
+
+The `v0.6.0` fixture confirms its non-persisted checkout credential boundary.
