@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.3.0...v0.4.0) (2026-07-30)
+
+
+### Features
+
+* exercise workflow-run release packaging ([#7](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/issues/7)) ([ceb6983](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/commit/ceb69836b206c96022b5d24c5b07b9904819b21b))
+
 ## [0.3.0](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.2.0...v0.3.0) (2026-07-30)
 
 
