@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.4.0...v0.5.0) (2026-07-30)
+
+
+### Features
+
+* confirm selected release profile ([#10](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/issues/10)) ([a86c0ea](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/commit/a86c0eaa1bf3d20718fe82c7de5a4bbdc69af1d2))
+
 ## [0.4.0](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.3.0...v0.4.0) (2026-07-30)
 
 
