@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "2492ba5e06adb8ad2a2cc018ebee67a59cc351cf",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "booster-fixture-plugin",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
+      "include-v-in-tag": true,
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "booster-fixture-plugin.php"
+        }
+      ]
+    }
+  }
+}
