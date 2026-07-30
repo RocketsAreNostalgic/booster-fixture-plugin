@@ -12,6 +12,10 @@
         {
           "type": "generic",
           "path": "booster-fixture-plugin.php"
+        },
+        {
+          "type": "generic",
+          "path": "fixture-marker.txt"
         }
       ]
     }

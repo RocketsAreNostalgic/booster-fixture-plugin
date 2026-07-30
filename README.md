@@ -9,7 +9,8 @@ shared GitHub Release Updater contract.
 The repository-owned builder accepts an immutable Git ref and exact version:
 
 ```sh
-bash scripts/build-release.sh HEAD 0.2.0
+release_version=0.2.0
+bash scripts/build-release.sh "v$release_version" "$release_version"
 ```
 
 It creates `build/booster-fixture-plugin-<version>.zip` and the matching JSON
