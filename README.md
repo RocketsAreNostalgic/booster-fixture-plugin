@@ -25,3 +25,6 @@ require a stored personal access token.
 
 The `v0.3.0` fixture exercises packaging in the same workflow that creates the
 Release Please tag and release.
+
+The `v0.4.0` fixture exercises packaging in a separate workflow triggered
+after the Release Please workflow completes.
