@@ -18,6 +18,10 @@ output_dir=${3:-"$repo_root/build"}
 commit=$(git -C "$repo_root" rev-parse --verify "$ref^{commit}") \
 	|| fail 'release ref does not resolve to a commit.'
 [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || fail 'release commit is invalid.'
+tag_commit=$(git -C "$repo_root" rev-parse --verify "refs/tags/v$expected_version^{commit}") \
+	|| fail 'expected release tag does not resolve to a commit.'
+[[ "$tag_commit" == "$commit" ]] \
+	|| fail 'expected release tag does not resolve to the release commit.'
 
 plugin_source=$(git -C "$repo_root" show "$commit:booster-fixture-plugin.php") \
 	|| fail 'plugin source is missing at the release ref.'
@@ -28,10 +32,15 @@ header_version=$(
 version_source=$(git -C "$repo_root" show "$commit:version.txt") \
 	|| fail 'version source is missing at the release ref.'
 version_source=$(printf '%s' "$version_source" | tr -d '[:space:]')
+marker_source=$(git -C "$repo_root" show "$commit:fixture-marker.txt") \
+	|| fail 'fixture marker is missing at the release ref.'
+marker_version=$(printf '%s\n' "$marker_source" | sed -nE 's/^booster-fixture-plugin ([^[:space:]]+)$/\1/p')
 [[ "$header_version" == "$expected_version" ]] \
 	|| fail 'plugin header version does not match the expected version.'
 [[ "$version_source" == "$expected_version" ]] \
 	|| fail 'version source does not match the plugin header.'
+[[ "$marker_version" == "$expected_version" ]] \
+	|| fail 'fixture marker version does not match the plugin header.'
 printf '%s\n' "$plugin_source" \
 	| grep -Fqx ' * Update URI: https://github.com/RocketsAreNostalgic/booster-fixture-plugin' \
 	|| fail 'plugin Update URI is invalid.'
