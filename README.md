@@ -22,3 +22,6 @@ Release Please owns version and tag creation. Phase 0 workflow experiments use
 only disposable fixture versions and GitHub releases. They must never replace
 a conflicting existing asset, write directly to a live WordPress site, or
 require a stored personal access token.
+
+The `v0.3.0` fixture exercises packaging in the same workflow that creates the
+Release Please tag and release.
