@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.6.0...v0.6.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* publish one native release zip ([#15](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/issues/15)) ([3e1e70b](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/commit/3e1e70b65af414c78555e056f1bb78f8a23888fa))
+
 ## [0.6.0](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.5.0...v0.6.0) (2026-07-30)
 
 
