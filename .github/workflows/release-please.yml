@@ -59,5 +59,4 @@ jobs:
         run: |
           bash scripts/upload-release-assets.sh \
             "$RELEASE_TAG" \
-            "build/booster-fixture-plugin-$RELEASE_VERSION.zip" \
-            "build/booster-fixture-plugin-$RELEASE_VERSION.json"
+            "build/booster-fixture-plugin-$RELEASE_VERSION.zip"
