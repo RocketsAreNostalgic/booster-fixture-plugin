@@ -1,8 +1,8 @@
 # Booster Fixture Plugin
 
 Disposable public plugin fixture for RAN Booster release-integration tests.
-Each published release contains the exact ZIP and manifest required by the
-shared GitHub Release Updater contract.
+Each published release contains one exact WordPress ZIP for the shared GitHub
+Release Updater contract.
 
 ## Release contract
 
@@ -13,10 +13,10 @@ release_version=0.2.0
 bash scripts/build-release.sh "v$release_version" "$release_version"
 ```
 
-It creates `build/booster-fixture-plugin-<version>.zip` and the matching JSON
-manifest. The manifest `zip_sha256` binds the ZIP; no separate checksum asset
-is required. The ZIP contains exactly one `booster-fixture-plugin/` root and
-the three allowlisted runtime files.
+It creates `build/booster-fixture-plugin-<version>.zip`. The ZIP contains
+exactly one `booster-fixture-plugin/` root and the three allowlisted runtime
+files. GitHub's asset digest and the updater's local re-hash bind its bytes; no
+sidecar is published.
 
 Release Please owns version and tag creation. Phase 0 workflow experiments use
 only disposable fixture versions and GitHub releases. They must never replace

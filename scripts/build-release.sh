@@ -48,12 +48,10 @@ printf '%s\n' "$plugin_source" \
 mkdir -p "$output_dir"
 output_dir=$(CDPATH='' cd -- "$output_dir" && pwd)
 archive_name="booster-fixture-plugin-$expected_version.zip"
-manifest_name="booster-fixture-plugin-$expected_version.json"
 temporary_dir=$(mktemp -d "${TMPDIR:-/tmp}/booster-fixture-plugin-release.XXXXXX")
 trap 'rm -rf "$temporary_dir"' EXIT
 
 archive="$temporary_dir/$archive_name"
-manifest="$temporary_dir/$manifest_name"
 git -C "$repo_root" archive \
 	--format=zip \
 	--prefix=booster-fixture-plugin/ \
@@ -84,36 +82,8 @@ archive_sha256=$(shasum -a 256 "$archive" | awk '{ print $1 }')
 [[ "$archive_size" =~ ^[1-9][0-9]*$ ]] || fail 'release ZIP size is invalid.'
 [[ "$archive_sha256" =~ ^[0-9a-f]{64}$ ]] || fail 'release ZIP digest is invalid.'
 
-printf '%s\n' \
-	'{' \
-	'  "schema": "ran-wordpress-plugin-release",' \
-	'  "schema_version": 1,' \
-	'  "repository": "RocketsAreNostalgic/booster-fixture-plugin",' \
-	"  \"tag\": \"v$expected_version\"," \
-	"  \"commit\": \"$commit\"," \
-	"  \"zip\": \"$archive_name\"," \
-	'  "plugin_root": "booster-fixture-plugin",' \
-	'  "main_file": "booster-fixture-plugin.php",' \
-	"  \"version\": \"$expected_version\"," \
-	'  "requires_php": "8.2",' \
-	'  "requires_wordpress": "6.5",' \
-	'  "tested_wordpress": "7.0",' \
-	"  \"zip_size\": $archive_size," \
-	"  \"zip_sha256\": \"$archive_sha256\"" \
-	'}' > "$manifest"
-
-php -r '
-	$data = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
-	if (($data["zip_sha256"] ?? null) !== $argv[2] || ($data["commit"] ?? null) !== $argv[3]) {
-		fwrite(STDERR, "Manifest identity verification failed.\n");
-		exit(1);
-	}
-' "$manifest" "$archive_sha256" "$commit"
-
 mv -f "$archive" "$output_dir/$archive_name"
-mv -f "$manifest" "$output_dir/$manifest_name"
 
 printf 'Built %s\n' "$output_dir/$archive_name"
-printf 'Manifest %s\n' "$output_dir/$manifest_name"
 printf 'Commit %s\n' "$commit"
 printf 'SHA-256 %s\n' "$archive_sha256"
