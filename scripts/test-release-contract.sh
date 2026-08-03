@@ -52,4 +52,6 @@ if bash "$repo_root/scripts/build-release.sh" HEAD '999.999.999' "$output_dir" >
 	fail 'the builder accepted metadata that disagrees with the requested version.'
 fi
 
+bash "$repo_root/tests/upload-release-assets.sh"
+
 printf 'Release workflow and exact-ref archive contract passed.\n'
