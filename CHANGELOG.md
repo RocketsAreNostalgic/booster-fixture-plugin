@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.6.1...v0.6.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* require immutable fixture releases ([#17](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/issues/17)) ([c4844b2](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/commit/c4844b2e82c44f2139c62d7adaa9cd8c43c8952e))
+
 ## [0.6.1](https://github.com/RocketsAreNostalgic/booster-fixture-plugin/compare/v0.6.0...v0.6.1) (2026-07-31)
 
 
