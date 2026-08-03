@@ -35,6 +35,8 @@ assert_contains "$workflow" 'git checkout --detach "${RAN_RELEASE_COMMIT}"'
 assert_contains "$workflow" '--target "${RAN_RELEASE_COMMIT}"'
 assert_contains "$workflow" '--repo "${GITHUB_REPOSITORY}"'
 assert_contains "$workflow" 'RAN_IMMUTABLE_RELEASES_ENABLED'
+assert_contains "$workflow" 'test "$published" = true'
+assert_contains "$workflow" "--jq '.draft'"
 assert_contains "$workflow" "--jq '.immutable'"
 assert_contains "$workflow" 'for delay in 0 2 2 2 2'
 assert_contains "$uploader" '--repo "$repository"'

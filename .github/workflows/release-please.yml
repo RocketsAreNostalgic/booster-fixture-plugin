@@ -118,10 +118,22 @@ jobs:
           fi
           latest=(--latest)
           [[ "${RAN_RELEASE_VERSION}" == *-* ]] && latest=(--prerelease)
-          gh release edit "${RAN_RELEASE_TAG}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --draft=false \
-            "${latest[@]}"
+          published=false
+          for delay in 0 2 2 2 2; do
+            sleep "$delay"
+            if gh release edit "${RAN_RELEASE_TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --draft=false \
+              "${latest[@]}"; then
+              published=true
+              break
+            fi
+            if [[ "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${RAN_RELEASE_TAG}" --jq '.draft' 2>/dev/null)" == false ]]; then
+              published=true
+              break
+            fi
+          done
+          test "$published" = true
           immutable=false
           for delay in 0 2 2 2 2; do
             sleep "$delay"
