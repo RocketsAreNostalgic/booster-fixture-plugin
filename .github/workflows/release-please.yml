@@ -5,8 +5,7 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: release-please-main
@@ -14,49 +13,133 @@ concurrency:
 
 jobs:
   release-please:
+    name: Release Please
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
       pull-requests: write
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      sha: ${{ steps.release.outputs.sha }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
     steps:
-      - id: release
+      - name: Open or update the release pull request
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          skip-github-release: true
 
   package-release:
-    if: needs.release-please.outputs.release_created == 'true'
+    name: Package release
     needs: release-please
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Check out the release commit
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ needs.release-please.outputs.sha }}
-      - name: Build exact release assets
+
+      - name: Identify a merged Release Please version
         env:
-          RELEASE_SHA: ${{ needs.release-please.outputs.sha }}
-          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
-          RELEASE_VERSION: ${{ needs.release-please.outputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
-          test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$RELEASE_SHA"
-          bash scripts/build-release.sh "$RELEASE_SHA" "$RELEASE_VERSION"
-      - name: Upload or verify release assets
+          set -euo pipefail
+          version="$(jq -er '."." | select(type == "string")' .release-please-manifest.json)"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]
+          tag="v${version}"
+          manifest_changed=true
+          git diff --quiet HEAD^ HEAD -- .release-please-manifest.json && manifest_changed=false
+          release_pages="$(gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/releases?per_page=100")"
+          if release_json="$(jq -cer --arg tag "$tag" 'add | .[] | select(.tag_name == $tag)' <<< "$release_pages")"; then
+            if [[ "$(jq -er '.draft' <<< "$release_json")" == false ]]; then
+              if [[ "$manifest_changed" == false || "$(jq -er '.immutable' <<< "$release_json")" == true ]]; then
+                exit 0
+              fi
+              echo '::error::The published release is not immutable and cannot be accepted.'
+              exit 1
+            fi
+            state=draft
+          else
+            state=absent
+          fi
+          release_commit="$(git log -1 --format=%H -- .release-please-manifest.json)"
+          test "$(git show "${release_commit}:.release-please-manifest.json" | jq -er '."."')" = "$version"
+          if [[ "$state" == draft ]]; then
+            test "$(jq -er '.target_commitish' <<< "$release_json")" = "$release_commit"
+          fi
+          printf 'RAN_RELEASE_VERSION=%s\nRAN_RELEASE_TAG=%s\nRAN_RELEASE_COMMIT=%s\nRAN_RELEASE_STATE=%s\nRAN_RELEASE_PENDING=true\n' \
+            "$version" "$tag" "$release_commit" "$state" >> "$GITHUB_ENV"
+
+      - name: Check out the exact release source
+        if: env.RAN_RELEASE_PENDING == 'true'
+        run: git checkout --detach "${RAN_RELEASE_COMMIT}"
+
+      - name: Build and verify release assets
+        if: env.RAN_RELEASE_PENDING == 'true'
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${RAN_RELEASE_COMMIT}"
+          bash scripts/build-release.sh HEAD "${RAN_RELEASE_VERSION}"
+          unzip -tqq "build/booster-fixture-plugin-${RAN_RELEASE_VERSION}.zip"
+
+      - name: Create or reuse the draft and attach verified assets
+        if: env.RAN_RELEASE_PENDING == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
-          RELEASE_VERSION: ${{ needs.release-please.outputs.version }}
         run: |
+          set -euo pipefail
+          if [[ "${RAN_RELEASE_STATE}" == absent ]]; then
+            prerelease=()
+            [[ "${RAN_RELEASE_VERSION}" == *-* ]] && prerelease=(--prerelease)
+            gh release create "${RAN_RELEASE_TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --draft \
+              --target "${RAN_RELEASE_COMMIT}" \
+              --title "${RAN_RELEASE_TAG}" \
+              --generate-notes \
+              "${prerelease[@]}"
+          fi
           bash scripts/upload-release-assets.sh \
-            "$RELEASE_TAG" \
-            "build/booster-fixture-plugin-$RELEASE_VERSION.zip"
+            "${RAN_RELEASE_TAG}" \
+            "build/booster-fixture-plugin-${RAN_RELEASE_VERSION}.zip"
+
+      - name: Publish only under the immutable-release contract
+        if: env.RAN_RELEASE_PENDING == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMMUTABLE_RELEASES_ENABLED: ${{ vars.RAN_IMMUTABLE_RELEASES_ENABLED }}
+        run: |
+          set -euo pipefail
+          if [[ "${IMMUTABLE_RELEASES_ENABLED}" != true ]]; then
+            echo '::error::Enable GitHub immutable releases and set RAN_IMMUTABLE_RELEASES_ENABLED=true. The verified release remains a draft.'
+            exit 1
+          fi
+          latest=(--latest)
+          [[ "${RAN_RELEASE_VERSION}" == *-* ]] && latest=(--prerelease)
+          published=false
+          for delay in 0 2 2 2 2; do
+            sleep "$delay"
+            if gh release edit "${RAN_RELEASE_TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --draft=false \
+              "${latest[@]}"; then
+              published=true
+              break
+            fi
+            if [[ "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${RAN_RELEASE_TAG}" --jq '.draft' 2>/dev/null)" == false ]]; then
+              published=true
+              break
+            fi
+          done
+          test "$published" = true
+          immutable=false
+          for delay in 0 2 2 2 2; do
+            sleep "$delay"
+            if immutable="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${RAN_RELEASE_TAG}" --jq '.immutable' 2>/dev/null)" \
+              && [[ "$immutable" == true ]]; then
+              break
+            fi
+          done
+          test "$immutable" = true

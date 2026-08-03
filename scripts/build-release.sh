@@ -18,10 +18,6 @@ output_dir=${3:-"$repo_root/build"}
 commit=$(git -C "$repo_root" rev-parse --verify "$ref^{commit}") \
 	|| fail 'release ref does not resolve to a commit.'
 [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || fail 'release commit is invalid.'
-tag_commit=$(git -C "$repo_root" rev-parse --verify "refs/tags/v$expected_version^{commit}") \
-	|| fail 'expected release tag does not resolve to a commit.'
-[[ "$tag_commit" == "$commit" ]] \
-	|| fail 'expected release tag does not resolve to the release commit.'
 
 plugin_source=$(git -C "$repo_root" show "$commit:booster-fixture-plugin.php") \
 	|| fail 'plugin source is missing at the release ref.'

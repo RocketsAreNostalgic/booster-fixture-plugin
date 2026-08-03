@@ -23,6 +23,12 @@ only disposable fixture versions and GitHub releases. They must never replace
 a conflicting existing asset, write directly to a live WordPress site, or
 require a stored personal access token.
 
+Future fixture releases use a resumable draft as the publication boundary.
+The workflow builds from the exact commit that changes the Release Please
+manifest, verifies the uploaded ZIP bytes and GitHub-native SHA-256 digest, and
+publishes only when immutable releases are enabled. Historical mutable fixtures
+remain historical test data and are never treated as proof of this contract.
+
 The `v0.3.0` fixture exercises packaging in the same workflow that creates the
 Release Please tag and release.
 
