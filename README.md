@@ -1,8 +1,12 @@
 # Booster Fixture Plugin
 
-Disposable public plugin fixture for RAN Booster release-integration tests.
+Disposable public plugin fixtures for RAN Booster release-integration tests.
 Each published release contains one exact WordPress ZIP for the shared GitHub
 Release Updater contract.
+
+The root plugin is the release-ZIP fixture. `branch-fixture/booster-fixture-branch.php`
+is a separate sub-plugin fixture, intentionally installable only through a
+branch/subdirectory registration; it is excluded from the release ZIP.
 
 ## Release contract
 
